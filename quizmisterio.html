@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Misterioso</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {margin:0;padding:0;background:linear-gradient(135deg,#d6eaff,#a3c9f9,#6fa8dc);font-family:'Comic Neue',cursive;text-align:center;color:#333;min-height:100vh;}
+    h1{margin-top:40px;font-size:2.5em;}
+    .quiz-container{max-width:700px;margin:30px auto;text-align:left;background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.2);}
+    .question{margin:20px 0;font-size:1.2em;}
+    label{display:block;margin:8px 0;cursor:pointer;}
+    .btn{background:#4a90e2;color:white;border:none;padding:12px 20px;border-radius:8px;font-size:1.2em;cursor:pointer;transition:0.3s;margin-top:20px;}
+    .btn:hover{transform:scale(1.05);background:#357ab8;}
+    .result{margin-top:20px;font-size:1.3em;font-weight:bold;}
+    .next-btn{background:#28a745;color:white;border:none;padding:15px 25px;border-radius:12px;font-size:1.4em;cursor:pointer;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);opacity:0;z-index:9999;box-shadow:0 8px 20px rgba(0,0,0,0.25);animation:aparecer 0.9s forwards ease-out,pulsar 1.5s infinite ease-in-out;}
+    @keyframes aparecer{to{transform:translate(-50%,-50%) scale(1);opacity:1;}}
+    @keyframes pulsar{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.08);}}
+  </style>
+</head>
+<body>
+  <h1>🎉 Quiz Misterioso 🎉</h1>
+  <p>Você precisa acertar <strong>80% (4 de 5)</strong> para desbloquear <em>o presente misterioso</em> 💣🎁</p>
+
+  <div class="quiz-container">
+    <div class="question">
+      1 - Qual o maior município do RJ em tamanho?
+      <label><input type="radio" name="q1" value="errado"> Rio de Janeiro 🌆 (só parece grande)</label>
+      <label><input type="radio" name="q1" value="errado"> Angra dos Reis 🌊 (gigante e cheio de ilhas)</label>
+      <label><input type="radio" name="q1" value="errado"> Duque de Caxias 🏙️ (grande no coração)</label>
+      <label><input type="radio" name="q1" value="correto"> Campos dos Goytacazes 🌾 (quase um país)</label>
+    </div>
+    <div class="question">
+      2 - Caxias ou Magé, quem é melhor?
+      <label><input type="radio" name="q2" value="correto"> Caxias, por muito 🙃</label>
+      <label><input type="radio" name="q2" value="errado"> Magé 💭 (tem seu charme)</label>
+      <label><input type="radio" name="q2" value="errado"> Empate técnico 🤔 (ninguém acredita)</label>
+      <label><input type="radio" name="q2" value="errado"> Magé, e não há discussão 😅</label>
+    </div>
+    <div class="question">
+      3 - Quem fez o gol do tetra do Flamengo na Libertadores?
+      <label><input type="radio" name="q3" value="errado"> Pedro 🦁 (faz gol até dormindo)</label>
+      <label><input type="radio" name="q3" value="errado"> Arrascaeta 🎩 (mago uruguaio)</label>
+      <label><input type="radio" name="q3" value="correto"> Danilo ⚽ (gênio da bola)</label>
+      <label><input type="radio" name="q3" value="errado"> Bruno Henrique 🚀 (corre mais que moto)</label>
+    </div>
+    <div class="question">
+      4 - Pareço estar muito pra frente, além do casual?
+      <label><input type="radio" name="q4" value="correto"> Não, eu sou assim mesmo: engraçado e extrovertido, agora aguenta kkkkkkkk 😎</label>
+      <label><input type="radio" name="q4" value="errado"> Sim, tá exagerando 😬</label>
+      <label><input type="radio" name="q4" value="errado"> Talvez, depende do dia 🤷</label>
+      <label><input type="radio" name="q4" value="errado"> Só quando toma energético ⚡</label>
+    </div>
+    <div class="question">
+      5 - Melhor personagem de Dexter (até o EP3 da S2)?
+      <label><input type="radio" name="q5" value="errado"> Dexter 🧪 (protagonista bizarro)</label>
+      <label><input type="radio" name="q5" value="correto"> Doakes 🔥 (negão careca maluco)</label>
+      <label><input type="radio" name="q5" value="errado"> Deb 😂 (parece a Tamires, só tem ex feio)</label>
+      <label><input type="radio" name="q5" value="errado"> Ángel 💃 (rei da balada)</label>
+    </div>
+    <button class="btn" id="btn-enviar">Enviar respostas</button>
+    <div class="result" id="resultado"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <audio id="bgmusic" preload="auto" loop>
+    <source src="https://github.com/user-attachments/files/24360667/hino-corinthians.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const btnEnviar = document.getElementById('btn-enviar');
+    const resultado = document.getElementById('resultado');
+    const audio = document.getElementById('bgmusic');
+
+    btnEnviar.addEventListener('click', () => {
+      let corretas = 0;
+      let total = 5;
+      let erros = [];
+
+      for (let i = 1; i <= total; i++) {
+        const resposta = document.querySelector('input[name="q' + i + '"]:checked');
+        if (resposta && resposta.value === 'correto') {
+          corretas++;
+        } else {
+          erros.push('Pergunta ' + i);
+        }
+      }
+
+      if (corretas >= 4) {
+        resultado.textContent = '✅ Você acertou ' + corretas + ' de ' + total + '! Prepare-se para o presente misterioso...';
+        confetti({particleCount:220,spread:70,origin:{y:0.6}});
+        audio.play().catch(()=>{});
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'next-btn';
+        nextBtn.textContent = '🇹🇯 Aí sim Samiris, pronta pra achar o tesouro?';
+        nextBtn.addEventListener('click', () => {
+          window.location.href = 'ferrari.html';
+        });
+        document.body.appendChild(nextBtn);
+      } else {
+        resultado.textContent = '❌ Você acertou apenas ' + corretas + ' de ' + total + '. Errou: ' + erros.join(', ');
+      }
+    });
+  </script>
+</body>
+</html>
